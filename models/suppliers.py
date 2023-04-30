@@ -1,3 +1,4 @@
+
 from datetime import datetime
 from typing import Optional
 
@@ -12,11 +13,11 @@ class Config:
     ...
 
 
-class CustomerSkeleton(SQLModel):
+class SupplierSkeleton(SQLModel):
 
-    fname: Optional[str] = Field(max_length=50, nullable=False)
+    contactfname: Optional[str] = Field(max_length=50, nullable=False)
 
-    lname: Optional[str] = Field(max_length=50, nullable=True)
+    contactlname: Optional[str] = Field(max_length=50, nullable=True)
 
     username: Optional[str] = Field(max_length=100, nullable=False,unique=True)
 
@@ -26,42 +27,26 @@ class CustomerSkeleton(SQLModel):
 
 
 
-class CustomerBase(CustomerSkeleton):
+class SupplierBase(SupplierSkeleton):
 
-    image_url: Optional[str] = Field(max_length=1024, nullable=True)
-
-    birthdate: Optional[str] = Field(nullable=True)
-
-    email1: Optional[str] = Field(max_length=100, nullable=True)
-
-    email2: Optional[str] = Field(max_length=100, nullable=True)
+    company_name: Optional[str] = Field(max_length=1024, nullable=True)
 
     address: Optional[str] = Field(max_length=500, nullable=True)
 
-    address1: Optional[str] = Field(max_length=500, nullable=True)
-
-    address2: Optional[str] = Field(max_length=500, nullable=True)
-
     phone_number: Optional[str] = Field(max_length=45, nullable=True)
 
-    phone_number1: Optional[str] = Field(max_length=45, nullable=True)
+    country: Optional[str] = Field(max_length=45, nullable=True)
+
+    postal_code: Optional[str] = Field(max_length=45, nullable=True)
 
     is_active: Optional[int] = Field(default=1)
 
     total_buy: int = Field(default=0)
 
-    twitter_id: Optional[str] = Field(max_length=100, nullable=True)
-
-    linkedin_id: Optional[str] = Field(max_length=100, nullable=True)
-
-    facebook_id: Optional[str] = Field(max_length=100, nullable=True)
-
-    skype_id: Optional[str] = Field(max_length=100, nullable=True)
-
 
 
 # Define the SQLModel class
-class customer(CustomerBase, table=True):
+class supplier(SupplierBase, table=True):
     """Customer Base Class"""
 
     id: Optional[int] = Field(default=None, index=True, primary_key=True)
