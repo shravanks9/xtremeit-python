@@ -8,28 +8,55 @@ from sqlmodel import Session, select
 from fastapi.encoders import jsonable_encoder
 
 from lib.database import get_session
-from models.customer import customer
+from lib.util import create_jwt
+from lib.auth import get_current_user
+from models.customer import CustomerSkeleton,customer
 
 router = APIRouter()
 
 logger = logging.getLogger('infinity-logger')
 
 
-class ResponseModel(BaseModel):
-    data: dict
+class JWTResponse(BaseModel):
+    jwt: str
 
 
-@router.post("/customer", response_model=dict)
-def create_customer(projectmembers: customer,
+@router.post("/signup", response_model=JWTResponse)
+def create_customer(projectmembers: CustomerSkeleton,
                           session: Session = Depends(get_session)):
 
     projectmembers = customer.from_orm(projectmembers)
+
     session.add(projectmembers)
     session.commit()
     session.refresh(projectmembers)
 
-    return projectmembers
+    data={"id":projectmembers.id,
+          "user_name":projectmembers.username,
+          "email":projectmembers.email,
+          "type":"customer"}
+    
+    jwt=create_jwt(data)
 
+    return {"jwt":jwt}
+
+
+@router.get("/login",response_model=JWTResponse)
+async def get_customer(user_name: str,password: str, session: Session = Depends(get_session)):
+
+    customer_data = session.query(customer).filter(customer.username == user_name).first()
+
+    if not customer_data or (customer_data.password!=password):
+        raise Exception("Inalid User name/Password")
+    
+    data={"id":customer_data.id,
+          "user_name":customer_data.username,
+          "email":customer_data.email,
+          "type":"customer"}
+    
+    jwt=create_jwt(data)
+
+    return {"jwt":jwt}
 
 @router.get("/customer")
 async def get_customer(limit: Optional[int] = 50, session: Session = Depends(get_session)):
@@ -43,17 +70,8 @@ async def get_customer(limit: Optional[int] = 50, session: Session = Depends(get
         return {"data": "not found"}
     
 
-@router.get("/login")
-async def get_customer(user_name: str,password: str, session: Session = Depends(get_session)):
-    category= session.query(customer).filter(customer.username == user_name, customer.password == password).first()
-
-    if not category:
-        raise Exception("user not found")
-    return category
-
-
 @router.put("/customer/{category_id}")
-async def update_category(category_id: int, category_update:customer,session: Session = Depends(get_session)):
+async def update_category(category_id: int, category_update:customer,session: Session = Depends(get_session),auth:dict=Depends(get_current_user)):
     category = session.query(customer).filter(customer.id == category_id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")

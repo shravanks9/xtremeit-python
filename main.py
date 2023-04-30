@@ -1,8 +1,10 @@
 
 from fastapi import FastAPI,Request
-from routers  import category, connection,product, sub_category,upload_file,customer,cart,wishlist
+from routers  import category, connection,product, sub_category,upload_file,customer,cart,wishlist,suppliers
 import time
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
 
 app=FastAPI()
 from fastapi import FastAPI, Request
@@ -28,6 +30,9 @@ app.include_router(tags=["cart"], router=cart.router)
 
 app.include_router(tags=["wishlist"], router=wishlist.router)
 
+app.include_router(tags=["supplier"], router=suppliers.router,prefix='/supplier')
+
+
 # app.include_router(tags=["sub_category"], router=connection.router)
 
 origins = ["*"]
@@ -39,3 +44,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.exception_handler(Exception)
+async def unicorn_exception_handler(request: Request, exc: Exception):
+    """expection handler"""
+    print(exc, request)
+    return JSONResponse(
+        status_code=400,
+        content={"message": "An application error occured", "code": str(exc)},
+    )
