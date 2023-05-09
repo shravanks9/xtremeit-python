@@ -8,7 +8,7 @@ from sqlmodel import Session, select
 from fastapi.encoders import jsonable_encoder
 
 from lib.database import get_session
-from models.category import categories
+from models.category import categories,CategoryBase,CategorySkeleton
 
 router = APIRouter()
 
@@ -19,15 +19,15 @@ class ResponseModel(BaseModel):
     data: dict
 
 
-@router.post("/categories", response_model=dict)
-def create_projectmembers(projectmembers: categories,
+@router.post("/categories")
+def create_projectmembers(projectmembers: CategoryBase,
                           session: Session = Depends(get_session)):
 
     projectmembers = categories.from_orm(projectmembers)
     session.add(projectmembers)
     session.commit()
     session.refresh(projectmembers)
-
+    print()
     return projectmembers
 
 

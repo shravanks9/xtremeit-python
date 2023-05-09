@@ -6,17 +6,19 @@ from sqlmodel import  TIMESTAMP, Column, Field, SQLModel, text
 
 from lib.database import engine
 
-
-class wishlist(SQLModel ,table=True):
+class WishlistSkeleton(SQLModel):
     
-    id: Optional[int] = Field(default=None,  index=True, primary_key=True)
-
     customer_id: int = Field(default=None, nullable=False)
 
     product_id: int = Field(default=None, nullable=False)
 
     status: bool = Field(default=None, nullable=False)
 
+class wishlist( WishlistSkeleton,table=True):
+        
+    id: Optional[int] = Field(default=None,  index=True, primary_key=True)
+
+    
     # Project Creation Date
     created_at: Optional[datetime] = Field(sa_column=Column(
         TIMESTAMP(timezone=True),

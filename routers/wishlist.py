@@ -8,7 +8,7 @@ from sqlmodel import Session, select
 from fastapi.encoders import jsonable_encoder
 
 from lib.database import get_session
-from models.wishlist import wishlist
+from models.wishlist import WishlistSkeleton,wishlist
 
 router = APIRouter()
 

@@ -8,7 +8,7 @@ from sqlmodel import Session, select
 from fastapi.encoders import jsonable_encoder
 
 from lib.database import get_session
-from models.cart import cart
+from models.cart import cart,CartSkeleton
 
 router = APIRouter()
 
@@ -19,7 +19,7 @@ class ResponseModel(BaseModel):
     data: dict
 
 
-@router.post("/cart", response_model=dict)
+@router.post("/cart", response_model=CartSkeleton)
 def create_projectmembers(projectmembers: cart,
                           session: Session = Depends(get_session)):
 

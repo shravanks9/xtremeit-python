@@ -1,28 +1,27 @@
-"""Crm Models"""
-import enum
-import uuid as uuid_pkg
+"""Products Models"""
 from datetime import datetime
 from typing import Optional
-from models.sub_catagory import sub_categories
-from sqlmodel import  TIMESTAMP, Column, Enum, Field, SQLModel, text,Relationship
+# from models.sub_category import sub_categories
+from sqlmodel import  DateTime, Column, Field, SQLModel, text
 from lib.database import engine
 
 
-class products(SQLModel ,table=True):
-    """ Project Members Base Class """
-    id: Optional[int] = Field(default=None,  index=True, primary_key=True)
-
+class ProductSkeleton(SQLModel):
+    
     name: str = Field(default=None,max_length=100, nullable=True)
-
-    # Project Id
+    
     slug: str = Field(default=None,max_length=45, nullable=True)
-
-    # Member Id
-    short_description: str = Field(default=None,max_length=500, nullable=True)
-
+    
     price : float =Field(default=None,nullable=True)
 
     quantity: int=Field(default=None,nullable=True)
+    
+    sub_category_id: Optional[int] = Field(default=None,nullable=True)
+
+    
+class ProductBase(ProductSkeleton):
+    
+    short_description: str = Field(default=None,max_length=500, nullable=True)
    
     full_detail: str = Field(default=None, max_length=10000, nullable=True)
   
@@ -46,22 +45,23 @@ class products(SQLModel ,table=True):
     
     IDSKU :str = Field(default=None,max_length=500,nullable=True)
 
-    sub_category_id: Optional[int] = Field(default=None,nullable=True)
     
-  
 
-    # Project Creation Date
+class products(ProductBase,table=True):
+    
+    id: Optional[int] = Field(default=None, index=True, primary_key=True)
+
     created_at: Optional[datetime] = Field(sa_column=Column(
-        TIMESTAMP(timezone=True),
+        DateTime(timezone=True),
         nullable=True,
         server_default=text("CURRENT_TIMESTAMP"),
     ))
 
-    # Project Updation date
-    updated_at:  Optional[datetime] = Field(sa_column=Column(
-        TIMESTAMP(timezone=True),
+    updated_at: Optional[datetime] = Field(sa_column=Column(
+        DateTime(timezone=True),
         nullable=True,
         server_default=text("CURRENT_TIMESTAMP"),
+        onupdate=datetime.utcnow,
     ))
 
 
