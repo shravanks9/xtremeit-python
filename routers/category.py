@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from fastapi.encoders import jsonable_encoder
 
-from lib.database import get_session
+from lib.database import get_session,engine
 from models.category import categories,CategoryBase,CategorySkeleton
 
 router = APIRouter()
@@ -21,13 +21,14 @@ class ResponseModel(BaseModel):
 
 @router.post("/categories")
 def create_projectmembers(projectmembers: CategoryBase,
-                          session: Session = Depends(get_session)):
+                          ):
 
     projectmembers = categories.from_orm(projectmembers)
-    session.add(projectmembers)
-    session.commit()
-    session.refresh(projectmembers)
-    print()
+    with Session(engine) as session :
+        session.add(projectmembers)
+        session.commit()
+        session.refresh(projectmembers)
+    
     return projectmembers
 
 

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends,HTTPException
 from sqlmodel import Session,select
 from fastapi.encoders import jsonable_encoder
 
-from lib.database import get_session
+from lib.database import get_session,engine
 from models.sub_category import subcategories,SubCategoryBase,SubCategorySkeleton
 router = APIRouter()
 
@@ -14,13 +14,14 @@ logger = logging.getLogger('infinity-logger')
 
 @router.post("/sub-categories", response_model=SubCategorySkeleton)
 def create_projectmembers(projectmembers: subcategories,
-                       session: Session = Depends(get_session)):
+                       ):
 
     projectmembers = subcategories.from_orm(projectmembers)
-    session.add(projectmembers)
-    session.commit()
-    session.refresh(projectmembers)
-
+    with Session(engine) as session :
+        session.add(projectmembers)
+        session.commit()
+        session.refresh(projectmembers)
+    
     return projectmembers
 
 

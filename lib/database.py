@@ -14,11 +14,11 @@ load_dotenv()
 
 
 db_url_object = URL.create(
-    drivername=config('DB_DRIVER'),
-    username=config('DB_USERNAME'),
-    password=config('DB_PASSWORD'),
-    host=config('DB_HOST'),
-    database=config('DB_NAME'),
+    drivername=config('DB_DRIVER','mysql+pymysql'),
+    username=config('DB_USERNAME','root'),
+    password=config('DB_PASSWORD','123456'),
+    host=config('DB_HOST','localhost'),
+    database=config('DB_NAME','xecomm'),
 )
 
 
