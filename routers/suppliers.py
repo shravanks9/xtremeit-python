@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session
 
-from lib.database import get_session
+from lib.database import get_session,engine
 from lib.util import create_jwt
 from models.suppliers import supplier,SupplierSkeleton
 
@@ -19,14 +19,15 @@ class JWTResponse(BaseModel):
 
 
 @router.post("/signup", response_model=JWTResponse)
-def create_supplier(supplier_data: SupplierSkeleton,
-                          session: Session = Depends(get_session)):
+def create_supplier(supplier_data: SupplierSkeleton):
 
     supplier_data = supplier.from_orm(supplier_data)
 
-    session.add(supplier_data)
-    session.commit()
-    session.refresh(supplier_data)
+    with Session(engine) as session :
+        session.add(supplier_data)
+        session.commit()
+        session.refresh(supplier_data)
+    
 
     data={"id":supplier_data.id,
           "user_name":supplier_data.username,

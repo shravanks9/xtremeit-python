@@ -2,29 +2,27 @@
 from typing import Optional
 import logging
 from fastapi import APIRouter, Depends,HTTPException
-# from pydantic import BaseModel
+
 from sqlmodel import Session,select
 from fastapi.encoders import jsonable_encoder
-# from routers.connection import get_ftp_files
-from lib.database import get_session
-from models.product import products
+from lib.database import get_session,engine
+from models.product import ProductBase,products,ProductSkeleton
 
 
 router = APIRouter()
 
 logger = logging.getLogger('infinity-logger')
 
-@router.post("/products", response_model=dict)
-def create_projectmembers(projectmembers: products,
-                       session: Session = Depends(get_session)):
+@router.post("/products", response_model=ProductSkeleton)
+def create_projectmembers(projectmembers: ProductBase):
 
     projectmembers = products.from_orm(projectmembers)
-    session.add(projectmembers)
-    session.commit()
-    session.refresh(projectmembers)
-
+    with Session(engine) as session :
+        session.add(projectmembers)
+        session.commit()
+        session.refresh(projectmembers)
+    
     return projectmembers
-
 
 @router.get("/products")
 async def get_products( limit: Optional[int] = 50,session: Session = Depends(get_session)):

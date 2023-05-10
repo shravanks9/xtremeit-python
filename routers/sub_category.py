@@ -6,29 +6,29 @@ from fastapi import APIRouter, Depends,HTTPException
 from sqlmodel import Session,select
 from fastapi.encoders import jsonable_encoder
 
-from lib.database import get_session
-from models.sub_catagory import sub_categories 
-from  models.category import categories
+from lib.database import get_session,engine
+from models.sub_category import subcategories,SubCategoryBase,SubCategorySkeleton
 router = APIRouter()
 
 logger = logging.getLogger('infinity-logger')
 
-@router.post("/sub-categories", response_model=dict)
-def create_projectmembers(projectmembers: sub_categories,
-                       session: Session = Depends(get_session)):
+@router.post("/sub-categories", response_model=SubCategorySkeleton)
+def create_projectmembers(projectmembers: subcategories,
+                       ):
 
-    projectmembers = sub_categories.from_orm(projectmembers)
-    session.add(projectmembers)
-    session.commit()
-    session.refresh(projectmembers)
-
+    projectmembers = subcategories.from_orm(projectmembers)
+    with Session(engine) as session :
+        session.add(projectmembers)
+        session.commit()
+        session.refresh(projectmembers)
+    
     return projectmembers
 
 
 
 @router.get("/sub-categories")
 async def get_sub_categories( limit: Optional[int] = 50,session: Session = Depends(get_session)):
-    query = select(sub_categories)
+    query = select(subcategories)
     if limit:
         query = query.limit(limit)
     sub_category = session.exec(query).all()
@@ -39,8 +39,8 @@ async def get_sub_categories( limit: Optional[int] = 50,session: Session = Depen
 
 
 @router.put("/sub-categories/{category_id}")
-async def update_category(category_id: int, category_update:sub_categories,session: Session = Depends(get_session)):
-    category = session.query(sub_categories).filter(sub_categories.id == category_id).first()
+async def update_category(category_id: int, category_update:subcategories,session: Session = Depends(get_session)):
+    category = session.query(subcategories).filter(subcategories.id == category_id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
     
@@ -57,7 +57,7 @@ async def update_category(category_id: int, category_update:sub_categories,sessi
 async def delete_sub_category(id: int, db: Session = Depends(get_session)):
     # Fetch the category to delete
     try:
-        db_category = db.query(sub_categories).filter(sub_categories.id == id).first()
+        db_category = db.query(subcategories).filter(subcategories.id == id).first()
 
         if db_category:
             # Delete the category

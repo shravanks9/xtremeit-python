@@ -7,8 +7,8 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from fastapi.encoders import jsonable_encoder
 
-from lib.database import get_session
-from models.cart import cart
+from lib.database import get_session,engine
+from models.cart import cart,CartSkeleton
 
 router = APIRouter()
 
@@ -19,17 +19,16 @@ class ResponseModel(BaseModel):
     data: dict
 
 
-@router.post("/cart", response_model=dict)
-def create_projectmembers(projectmembers: cart,
-                          session: Session = Depends(get_session)):
+@router.post("/cart", response_model=CartSkeleton)
+def create_projectmembers(projectmembers: cart):
 
     projectmembers = cart.from_orm(projectmembers)
-    session.add(projectmembers)
-    session.commit()
-    session.refresh(projectmembers)
-
+    with Session(engine) as session :
+        session.add(projectmembers)
+        session.commit()
+        session.refresh(projectmembers)
+    
     return projectmembers
-
 
 @router.get("/cart")
 async def get_cart(limit: Optional[int] = 50, session: Session = Depends(get_session)):

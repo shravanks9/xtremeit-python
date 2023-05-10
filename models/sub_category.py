@@ -1,4 +1,4 @@
-"""Categories Models"""
+"""Crm Models"""
 from datetime import datetime
 from typing import Optional
 
@@ -6,22 +6,24 @@ from sqlmodel import  DateTime, Column, Field, SQLModel, text
 
 from lib.database import engine
 
-class CategorySkeleton(SQLModel):
+class SubCategorySkeleton(SQLModel):
     
     name: str = Field(default=None,max_length=100, nullable=False)
     
     slug: str = Field(default=None,max_length=45, nullable=True)
+
+    category_id:Optional[int]= Field (default=None,nullable=False)
     
-class CategoryBase(CategorySkeleton):
+class SubCategoryBase(SubCategorySkeleton):
     
     short_description: str = Field(default=None,max_length=500, nullable=True)
     
     full_description: str = Field(default=None, max_length=10000, nullable=True)
     
-    tags: str = Field(default=None, max_length=100, nullable=True)    
-    
+    tags: str = Field(default=None, max_length=100, nullable=True)
 
-class categories(CategoryBase,table=True):
+
+class subcategories(SubCategoryBase,table=True):
     
     id: Optional[int] = Field(default=None, index=True, primary_key=True)
 

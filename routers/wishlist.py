@@ -7,8 +7,8 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from fastapi.encoders import jsonable_encoder
 
-from lib.database import get_session
-from models.wishlist import wishlist
+from lib.database import get_session,engine
+from models.wishlist import WishlistSkeleton,wishlist
 
 router = APIRouter()
 
@@ -20,14 +20,14 @@ class ResponseModel(BaseModel):
 
 
 @router.post("/wishlist", response_model=dict)
-def create_projectmembers(projectmembers: wishlist,
-                          session: Session = Depends(get_session)):
+def create_projectmembers(projectmembers: wishlist):
 
     projectmembers = wishlist.from_orm(projectmembers)
-    session.add(projectmembers)
-    session.commit()
-    session.refresh(projectmembers)
-
+    with Session(engine) as session :
+        session.add(projectmembers)
+        session.commit()
+        session.refresh(projectmembers)
+    
     return projectmembers
 
 
